@@ -1,2 +1,5 @@
-DEFINE_NEAR_METHOD(get_greeting)
-DEFINE_NEAR_METHOD(set_greeting)
+DEFINE_NEAR_METHOD(confirm_stage)
+DEFINE_NEAR_METHOD(get_all_lot_ids)
+DEFINE_NEAR_METHOD(get_lot_state)
+DEFINE_NEAR_METHOD(init)
+DEFINE_NEAR_METHOD(mint_lot)

@@ -1,11 +1,11 @@
 {
-  "name": "tracefood-contract",
+  "name": "hello_near",
   "version": "1.0.0",
   "license": "(MIT AND Apache-2.0)",
   "type": "module",
   "scripts": {
-    "build": "near-sdk-js build src/contract.ts build/tracefood_near.wasm",
-    "test": "$npm_execpath run build && ava -- ./build/tracefood_near.wasm"
+    "build": "near-sdk-js build src/contract.ts build/hello_near.wasm",
+    "test": "$npm_execpath run build && ava -- ./build/hello_near.wasm"
   },
   "dependencies": {
     "near-sdk-js": "2.0.0"
@@ -13,7 +13,7 @@
   "devDependencies": {
     "ava": "^6.1.3",
     "near-workspaces": "^4.0.0",
-    "typescript": "^5.8.3"
+    "typescript": "^5.4.5"
   },
   "ava": {
     "files": [

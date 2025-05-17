@@ -3,28 +3,6 @@ import { NearBindgen, near, call, view, initialize, LookupMap, AccountId, NearPr
 import { FoodLot, LotEvent } from './product_lot';
 
 
-/*
-@NearBindgen({})
-class HelloNear {
-
-  static schema = {
-    greeting: 'string'
-  };
-
-  greeting: string = 'Hello';
-
-  @view({}) // This method is read-only and can be called for free
-  get_greeting(): string {
-    return this.greeting;
-  }
-
-  @call({}) // This method changes the state, for which it cost gas
-  set_greeting({ greeting }: { greeting: string }): void {
-    near.log(`Saving greeting ${greeting}`);
-    this.greeting = greeting;
-  }
-}
-*/
 
 
 //  cantidad (en yoctoNEAR) a pagar al agricultor al completar el proceso
@@ -40,7 +18,7 @@ class TraceFoodContract {
 
   // Mapea el nombre de una etapa a la cuenta de testnet que se espera que confirme la SIGUIENTE etapa.
   // Esto define el flujo básico de actores para el MVP. Null indica la etapa final.
-  // Usaremos un Record simple para esto en el estado del contrato.
+  // Record simple para esto en el estado del contrato.
   stage_transitions: Record<string, AccountId | null> = {};
 
   // Para el MVP, mantengamos una lista simple de IDs de lotes para listarlos fácilmente.
@@ -74,7 +52,7 @@ class TraceFoodContract {
       description: string,
       initial_metadata: { crop_type: string, farm_location: string, certifications?: string[] }
   }): void {
-    // Verifica si el lote ya existe. Si existe, entra en pánico (error).
+    // Verifica si el lote ya existe. Si existe, entra en pánico xD(error).
     if (this.lots.get(lot_id) !== null) {
       throw new Error(`El lote con ID "${lot_id}" ya existe.`);
     }
@@ -185,12 +163,11 @@ class TraceFoodContract {
         // Crea una promesa para transferir tokens al agricultor.
         const promise = NearPromise.new(lot.farmer_id).transfer(PAYMENT_AMOUNT_YOCTO);
 
-        // Puedes añadir una continuación a la promesa para manejar el resultado del pago,
-        // pero para el MVP, la transferencia simple es suficiente.
+        // SE Puede añadir una continuación a la promesa para manejar el resultado del pago,
         // promise.then(NearPromise.builder().functionCall(...));
 
         // Ejecuta la promesa (la transferencia ocurrirá después de que esta función termine).
-         promise; // La promesa debe ser la última instrucción en una función `call` que la usa.
+        promise; //  última instrucción en una función `call` que la usa.
 
         // Actualiza el estado de pago (importante para no pagar dos veces si se llama de nuevo).
         lot.payment_status = "Fully Paid";
@@ -230,7 +207,7 @@ class TraceFoodContract {
   }
 
 
-  // añadir otros métodos view si necesitas consultar cosas específicas,
+  // añadir otros métodos view COMONPARA consultar cosas específicas,
   // ej: get_lots_by_actor(actor_id: AccountId): string[]
-  // THis is implementar eficientemente con LookupMap .
+  // THis is implementar eficientemente con LookupMap .BHJBJH
 }
