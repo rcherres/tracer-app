@@ -1,41 +1,56 @@
 // src/app/actors/page.js
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useNear } from '@/context/near-context';
-import { viewMethod, callMethod } from '@/wallets/web3modal';
-import LotDetails from '@/components/LotDetails'; // Reutiliza el componente
+import { useEffect, useState, useContext } from 'react'; 
 
+import nearConfig from '@/config'; 
+import LotDetails from '@/components/LotDetails';
+import { NearContext } from '@/context/near-context';
 
 export default function ActorsPage() {
-  const { accountId, isSignedIn } = useNear();
+  const { wallet, signedAccountId } = useContext(NearContext);
+
+  // Estado local del componente
   const [myPendingLots, setMyPendingLots] = useState([]);
   const [loadingLots, setLoadingLots] = useState(true);
   const [callingMethod, setCallingMethod] = useState(false);
-   const [message, setMessage] = useState('');
-   const [isError, setIsError] = useState(false);
+  const [message, setMessage] = useState('');
+  const [isError, setIsError] = useState(false);
+
+  // Opcional: Estado para saber si la instancia de 'wallet' del contexto está lista
+  const [isWalletReady, setIsWalletReady] = useState(false);
+
+  useEffect(() => {
+    // La instancia de 'wallet' del contexto puede ser undefined inicialmente
+    // hasta que el RootLayout la inicialice.
+    if (wallet) {
+      setIsWalletReady(true);
+    }
+  }, [wallet]); // Se ejecuta cuando cambia la instancia de 'wallet'
 
 
-  // HARDCODEA AQUÍ EL MISMO MAPEO QUE USaste EN CONTRATO INIT (¡con tus IDs REALES!)
+  // Nombres de cuenta de actor que usaste para inicializar tu contrato
+  // ¡ASEGÚRATE DE QUE ESTOS COINCIDAN EXACTAMENTE CON LOS DE TU CONTRATO!
   const STAGE_TRANSITIONS = {
-      "Cosecha": "distribuidor-abc.testnet", // <-- REEMPLAZA
-      "Llegada Distribuidor": "supermercado-abc.testnet", // <-- REEMPLAZA
-      "Llegada Supermercado": "comprador-abc.testnet" // <-- REEMPLAZA
+      "Cosecha": "distribuidor-tf-hack.testnet", 
+      "Llegada Distribuidor": "supermercado-tf-hack.testnet", 
+      "Llegada Supermercado": "comprador-tf-hack.testnet" 
   };
 
-   // Helper para obtener el nombre de la siguiente etapa basado en la etapa actual y el mapeo
+   // Helper para obtener el nombre de la siguiente etapa
    const getNextStageName = (currentStage) => {
        const stages = Object.keys(STAGE_TRANSITIONS);
        const currentIndex = stages.indexOf(currentStage);
        if (currentIndex !== -1 && currentIndex < stages.length -1) {
            return stages[currentIndex + 1];
        }
-       return null; // No hay siguiente etapa o es la última
+       return null;
    };
 
 
+  // useEffect para cargar los lotes cuando la wallet está lista y hay un usuario loggeado
   useEffect(() => {
-    if (!isSignedIn) {
+    if (!isWalletReady || !signedAccountId) { // Espera a que wallet esté lista y haya login
         setMyPendingLots([]);
         setLoadingLots(false);
         return;
@@ -46,21 +61,29 @@ export default function ActorsPage() {
        setMessage('');
        setIsError(false);
       try {
-        // 1. Obtener todos los IDs de lotes
-        const ids = await viewMethod('get_all_lot_ids');
+        // 1. Obtener todos los IDs de lotes usando wallet.viewMethod
+        const ids = await wallet.viewMethod({
+            contractId: nearConfig.contractName, // El ID de tu contrato TraceFood
+            method: 'get_all_lot_ids',
+            // args: {} // No necesita args, pero la clase Wallet lo maneja
+        });
 
         // 2. Para cada ID, obtener el estado y filtrar si es tu turno
         const pendingLots = [];
-        for (const id of ids) {
-          const lot = await viewMethod('get_lot_state', { lot_id: id });
-          if (lot && lot.expected_next_actor_id === accountId) {
-             // Añade el nombre de la próxima etapa esperada para mostrarla en el frontend
-             const nextStageToConfirm = getNextStageName(lot.current_stage);
-             // Solo añade a la lista si realmente hay una siguiente etapa a confirmar
-             if (nextStageToConfirm) {
-                 pendingLots.push({...lot, nextStageToConfirm: nextStageToConfirm});
-             }
-          }
+        if (ids && Array.isArray(ids)) { // Verifica que ids sea un array
+            for (const id of ids) {
+              const lot = await wallet.viewMethod({
+                  contractId: nearConfig.contractName,
+                  method: 'get_lot_state',
+                  args: { lot_id: id }
+              });
+              if (lot && lot.expected_next_actor_id === signedAccountId) { // Usa signedAccountId
+                 const nextStageToConfirm = getNextStageName(lot.current_stage);
+                 if (nextStageToConfirm) {
+                     pendingLots.push({...lot, nextStageToConfirm: nextStageToConfirm});
+                 }
+              }
+            }
         }
         setMyPendingLots(pendingLots);
 
@@ -73,29 +96,37 @@ export default function ActorsPage() {
       }
     }
 
-    fetchLots();
+    fetchLots(); // Llama a fetchLots
 
-    const refreshInterval = setInterval(fetchLots, 30000); // Refrescar cada 30 segundos
-    return () => clearInterval(refreshInterval); // Limpiar intervalo
+    const refreshInterval = setInterval(fetchLots, 30000);
+    return () => clearInterval(refreshInterval);
 
-  }, [accountId, isSignedIn]); // Depende de accountId y isSignedIn
+  }, [isWalletReady, signedAccountId, wallet]); // Dependencias: isWalletReady, signedAccountId, wallet
 
 
    const handleConfirmStage = async (lotId, nextStageName) => {
+      if (!wallet || !signedAccountId) {
+          setMessage("Por favor, asegúrate de estar conectado con tu wallet.");
+          setIsError(true);
+          return;
+      }
       setCallingMethod(true);
       setMessage('');
       setIsError(false);
       try {
-         await callMethod('confirm_stage', {
-            lot_id: lotId,
-            stage_name: nextStageName, // Usar el nombre de la siguiente etapa
+         // Llama a wallet.callMethod
+         await wallet.callMethod({
+            contractId: nearConfig.contractName,
+            method: 'confirm_stage',
+            args: {
+                lot_id: lotId,
+                stage_name: nextStageName,
+            },
+            // gas y deposit son opcionales, la clase Wallet tiene defaults
          });
          setMessage(`Etapa "${nextStageName}" confirmada para el lote "${lotId}"!`);
          setIsError(false);
-
-         // Elimina el lote de la lista localmente para que desaparezca de la vista "Pendientes para Ti"
          setMyPendingLots(prev => prev.filter(lot => lot.lot_id !== lotId));
-
 
       } catch (err) {
          console.error("Error confirming stage:", err);
@@ -106,13 +137,18 @@ export default function ActorsPage() {
       }
    };
 
+  // Renderizado condicional
+  if (!isWalletReady) { // Primero espera a que la instancia de wallet del contexto esté disponible
+    return <div className="text-center py-8" style={{color: 'var(--gray-600)'}}>Inicializando wallet...</div>;
+  }
 
-  if (!isSignedIn) {
+  if (!signedAccountId) { // Luego, si la wallet está lista pero no hay cuenta, pide login
     return <div className="text-center py-8" style={{color: 'var(--gray-600)'}}>Por favor, conecta tu wallet para acceder a esta sección de actores.</div>;
   }
 
+  // Determinar el rol del actor actual
   const actorRole = (() => {
-     const myAccount = accountId;
+     const myAccount = signedAccountId; // Usa signedAccountId
      if (myAccount === STAGE_TRANSITIONS["Cosecha"]) return 'Distribuidor (Siguiente Actor después de Cosecha)';
      if (myAccount === STAGE_TRANSITIONS["Llegada Distribuidor"]) return 'Supermercado (Siguiente Actor después de Distribuidor)';
      if (myAccount === STAGE_TRANSITIONS["Llegada Supermercado"]) return 'Comprador Final (Siguiente Actor después de Supermercado)';
@@ -121,42 +157,49 @@ export default function ActorsPage() {
 
 
   return (
-    <div className="container mx-auto py-8"> {/* container mx-auto py-8 */}
-      <h1 style={{fontSize: '2em', marginBottom: '1.5rem'}}>{/* text-3xl font-bold text-trace-dark-green mb-6 */} Panel de Actores de la Cadena</h1>
-      <p style={{fontSize: '1.25em', color: 'var(--gray-700)', marginBottom: '1rem'}}>{/* text-xl text-gray-700 mb-4 */} Loggeado como: <strong style={{color: 'var(--trace-dark-green)'}}>{accountId}</strong> (<span style={{fontStyle: 'italic'}}>{actorRole}</span>)</p>
-
+    <div className="container mx-auto py-8"> {/* Estilos CSS planos */}
+      <h1 style={{fontSize: '2em', marginBottom: '1.5rem'}}>Panel de Actores de la Cadena</h1>
+      <p style={{fontSize: '1.25em', color: 'var(--gray-700)', marginBottom: '1rem'}}>
+        Loggeado como: <strong style={{color: 'var(--trace-dark-green)'}}>{signedAccountId}</strong> (<span style={{fontStyle: 'italic'}}>{actorRole}</span>)
+      </p>
 
       {message && (
-         <div className={`message ${isError ? 'error' : 'success'} mb-6`}> {/* mt-4 p-3 rounded-md text-center mb-6 ${isError ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'} */}
+         <div className={`message ${isError ? 'error' : 'success'} mb-6`}>
             {message}
          </div>
       )}
 
-      <h2 style={{fontSize: '1.5em', marginBottom: '1rem'}}>{/* text-2xl font-semibold text-gray-700 mb-4 */} Lotes Pendientes para Ti:</h2>
+      <h2 style={{fontSize: '1.5em', marginBottom: '1rem'}}>Lotes Pendientes para Ti:</h2>
 
       {loadingLots ? (
-        <div className="text-center" style={{color: 'var(--gray-600)'}}>{/* text-center text-gray-600 */} Cargando lotes pendientes...</div>
+        <div className="text-center" style={{color: 'var(--gray-600)'}}>Cargando lotes pendientes...</div>
       ) : myPendingLots.length === 0 ? (
-        <div className="text-center" style={{color: 'var(--gray-600)'}}>{/* text-center text-gray-600 */} No hay lotes pendientes para que tú confirmes en este momento.</div>
+        <div className="text-center" style={{color: 'var(--gray-600)'}}>No hay lotes pendientes para que tú confirmes en este momento.</div>
       ) : (
-        <div className="space-y-6"> {/* space-y-6 */}
+        <div className="space-y-6">
           {myPendingLots.map(lot => (
-            <div key={lot.lot_id} className="panel panel-border-green"> {/* bg-white shadow-md rounded-lg p-6 border border-trace-medium-green */}
-               <h3 style={{fontSize: '1.25em', marginBottom: '0.75rem'}}>{/* text-xl font-bold text-trace-dark-green mb-3 */} {lot.description} <span style={{color: 'var(--gray-500)', fontSize: '0.875em'}}>{/* text-gray-500 text-base */} ({lot.lot_id})</span></h3>
-               <p style={{color: 'var(--gray-700)', marginBottom: '0.75rem'}}><strong style={{color: 'var(--gray-600)'}}>{/* text-gray-600 */} Etapa Actual:</strong> {lot.current_stage}</p>
+            <div key={lot.lot_id} className="panel panel-border-green">
+               <h3 style={{fontSize: '1.25em', marginBottom: '0.75rem'}}>
+                 {lot.description} <span style={{color: 'var(--gray-500)', fontSize: '0.875em'}}>({lot.lot_id})</span>
+               </h3>
+               <p style={{color: 'var(--gray-700)', marginBottom: '0.75rem'}}>
+                 <strong style={{color: 'var(--gray-600)'}}>Etapa Actual:</strong> {lot.current_stage}
+               </p>
 
-               {/* nextStageToConfirm se calcula en useEffect */}
                {lot.nextStageToConfirm ? (
                    <button
                        onClick={() => handleConfirmStage(lot.lot_id, lot.nextStageToConfirm)}
-                       className={`btn-primary mt-3 ${callingMethod ? 'opacity-50 cursor-not-allowed' : ''}`} // px-4 py-2 mt-3 bg-trace-dark-green text-white font-semibold rounded-md hover:bg-trace-light-green transition duration-200
+                       className={`btn-primary mt-3 ${callingMethod ? 'opacity-50 cursor-not-allowed' : ''}`}
                        disabled={callingMethod}
                    >
                        {callingMethod ? 'Confirmando...' : `Confirmar "${lot.nextStageToConfirm}"`}
                    </button>
                ) : (
-                   <p style={{color: 'green', marginTop: '0.75rem'}}>{/* text-green-600 mt-3 */} Este lote está en la última etapa asignada a ti.</p>
+                   <p style={{color: 'green', marginTop: '0.75rem'}}>
+                     Este lote está en la última etapa asignada a ti o completado.
+                   </p>
                )}
+               {/* Opcional: <LotDetails lot={lot} /> si quieres mostrar todo aquí */}
             </div>
           ))}
         </div>

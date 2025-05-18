@@ -12,32 +12,32 @@ export default function LotDetails({ lot }) {
   };
 
   return (
-    <div className="panel panel-border-green mb-6"> {/* bg-white shadow-md rounded-lg p-6 mb-6 border border-trace-medium-green */}
+    <div className="panel panel-border-green mb-6"> 
       <h3 className="text-2xl font-bold text-trace-dark-green mb-4">{lot.description} <span style={{color: 'var(--gray-500)', fontSize: '0.875em'}}>{/* text-gray-500 text-lg */} ({lot.lot_id})</span></h3>
-      {/* Nota: Para estilos inline como color o font-size simple, puedes mantenerlos si no quieres crear clases CSS específicas para cada variación */}
+    
 
-      <div className="lot-details-grid mb-6"> {/* grid grid-cols-1 md:grid-cols-2 gap-6 mb-6 */}
+      <div className="lot-details-grid mb-6"> 
         <div>
-          <h4 style={{color: 'var(--gray-700)'}}>{/* text-lg font-semibold text-gray-700 mb-2 */} Detalles Iniciales:</h4>
+          <h4 style={{color: 'var(--gray-700)'}}>Detalles Iniciales:</h4>
           <p><strong>Agricultor:</strong> {lot.farmer_id}</p>
           <p><strong>Tipo de Cultivo:</strong> {lot.initial_metadata?.crop_type || 'N/A'}</p>
           <p><strong>Ubicación Granja:</strong> {lot.initial_metadata?.farm_location || 'N/A'}</p>
           <p><strong>Certificaciones:</strong> {lot.initial_metadata?.certifications?.join(', ') || 'Ninguna'}</p>
         </div>
         <div>
-           <h4 style={{color: 'var(--gray-700)'}}>{/* text-lg font-semibold text-gray-700 mb-2 */} Estado Actual:</h4>
-           <p><strong>Etapa Actual:</strong> <span style={{fontWeight: 'semibold', color: 'var(--trace-dark-green)'}}>{/* font-semibold text-trace-dark-green */} {lot.current_stage}</span></p>
+           <h4 style={{color: 'var(--gray-700)'}}> Estado Actual:</h4>
+           <p><strong>Etapa Actual:</strong> <span style={{fontWeight: 'semibold', color: 'var(--trace-dark-green)'}}> {lot.current_stage}</span></p>
            <p><strong>Próximo Actor Esperado:</strong> {lot.expected_next_actor_id || 'Lote completado'}</p>
            <p><strong>Estado de Pago:</strong> <span style={{fontWeight: 'semibold', color: lot.payment_status === 'Fully Paid' ? 'green' : 'orange'}}>{/* font-semibold text-green-600/text-orange-500 */} {lot.payment_status}</span></p>
         </div>
       </div>
 
       <div>
-        <h4 style={{color: 'var(--gray-700)'}}>{/* text-lg font-semibold text-gray-700 mb-3 */} Historial de Trazabilidad:</h4>
+        <h4 style={{color: 'var(--gray-700)'}}> Historial de Trazabilidad:</h4>
         {lot.events && lot.events.length > 0 ? (
-          <ul className="space-y-3"> {/* space-y-3 */}
+          <ul className="space-y-3"> 
             {lot.events.map((event, index) => (
-              <li key={index} className="event-item"> {/* bg-gray-100 p-4 rounded-md border border-gray-200 */}
+              <li key={index} className="event-item">
                 <p><strong style={{color: 'var(--gray-700)'}}>{/* text-gray-700 */} {event.stage}</strong> por <span style={{color: 'var(--trace-dark-green)'}}>{/* text-trace-dark-green */} {event.actor_id}</span></p>
                 <p style={{fontSize: '0.875em', color: 'var(--gray-500)'}}>{/* text-sm text-gray-500 */} {formatTimestamp(event.timestamp)}</p>
                 {event.location && <p style={{fontSize: '0.875em', color: 'var(--gray-500)'}}>Ubicación: {event.location}</p>} {/* text-sm text-gray-500 */}

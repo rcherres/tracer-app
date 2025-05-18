@@ -8,7 +8,7 @@ export const HelloNearContract = contractPerNetwork[NetworkId];
 
 
 
-const CONTRACT_NAME = process.env.NEXT_PUBLIC_CONTRACT_NAME || 'tracefood-hackathon-abc.testnet'; // <--- ¡ACTUALIZA con el nombre de tu contrato desplegado!
+const AUCTION_CONTRACT = process.env.NEXT_PUBLIC_CONTRACT_NAME || 'tracefood-v2-hack.testnet'; // <--- ¡ nombre de tu contrato desplegado!
 
 function getConfig(env) {
   switch (env) {
@@ -17,7 +17,7 @@ function getConfig(env) {
       return {
         networkId: 'testnet',
         nodeUrl: 'https://rpc.testnet.near.org',
-        contractName: CONTRACT_NAME,
+        contractName: AUCTION_CONTRACT,
         walletUrl: 'https://wallet.testnet.near.org',
         helperUrl: 'https://helper.testnet.near.org',
         explorerUrl: 'https://explorer.testnet.near.org',
@@ -28,7 +28,7 @@ function getConfig(env) {
         nodeUrl: 'http://localhost:3030',
         keyPath: `${process.env.HOME}/.near/validator_key.json`,
         walletUrl: 'http://localhost:4000/wallet',
-        contractName: CONTRACT_NAME,
+        contractName: AUCTION_CONTRACT,
         helperUrl: 'http://localhost:0',
         explorerUrl: 'http://localhost:4000/explorer',
       };
@@ -37,14 +37,14 @@ function getConfig(env) {
       return {
         networkId: 'shared-test',
         nodeUrl: 'https://rpc.ci-testnet.near.org',
-        contractName: CONTRACT_NAME,
+        contractName: AUCTION_CONTRACT,
         masterAccount: 'test.near',
       };
     case 'ci-betanet':
       return {
         networkId: 'shared-betanet',
         nodeUrl: 'https://rpc.ci-betanet.near.org',
-        contractName: CONTRACT_NAME,
+        contractName: AUCTION_CONTRACT,
         masterAccount: 'test.betanet',
       };
     default:

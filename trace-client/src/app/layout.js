@@ -7,45 +7,39 @@ import '@/app/globals.css';
 
 import '@near-wallet-selector/modal-ui/styles.css';
 
-import { setupMyNearWallet } from '@near-wallet-selector/my-near-wallet';
 
-import { setupSender } from '@near-wallet-selector/sender'; 
-import { setupMeteorWallet } from '@near-wallet-selector/meteor-wallet'; 
-import nearConfig from '@/config'; 
+import  { NetworkId } from '@/config'; 
 
 
 
-import { WalletSelectorProvider } from '@near-wallet-selector/react-hook';
-import { NearProvider } from '@/context/near-context';
+
+import { NearContext } from '@/context/near-context';
 import Navigation from '@/components/navigation';
+import { Wallet } from '@/wallets/web3modal';
+import { useEffect, useState } from 'react';
 
 
-const walletSelectorConfig = {
-  network: nearConfig.networkId,
-  // createAccessKeyFor: nearConfig.contractName,
-   createAccessKeyFor: nearConfig.contractName,
 
-  modules: [
-    setupMyNearWallet(), 
-     setupSender(),
-     setupMeteorWallet()
-  ],
-};
+
+const wallet = new Wallet({ networkId: NetworkId });
 
 // Layout Component
 export default function RootLayout({ children }) {
 
+  const [signedAccountId, setSignedAccountId] = useState('');
+
+  useEffect(() => { wallet.startUp(setSignedAccountId) }, []);  
   return (
     <html lang="en">
       <body>
-        <WalletSelectorProvider config={walletSelectorConfig}>
-          <NearProvider>
+       
+         <NearContext.Provider value={{ wallet, signedAccountId }}>
             <Navigation />
              <main className="container" style={{paddingTop: '1rem', paddingBottom: '1rem'}}> 
                {children}
              </main>
-          </NearProvider>
-        </WalletSelectorProvider>
+          </NearContext.Provider>
+      
       </body>
     </html>
   );
