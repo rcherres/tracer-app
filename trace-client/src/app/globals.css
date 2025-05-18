@@ -1,0 +1,298 @@
+@import 'bootstrap';
+@import 'bootstrap-icons';
+
+:root {
+  --trace-dark-green: #1A4D2E;
+  --trace-light-green: #9EDE73;
+  --trace-medium-green: #A8E890;
+  --gray-100: #f3f4f6; /* Puedes ajustar estos grises */
+  --gray-200: #e5e7eb;
+  --gray-300: #d1d5db;
+  --gray-400: #9ca3af;
+  --gray-500: #6b7280;
+  --gray-600: #4b5563;
+  --gray-700: #374151;
+  --gray-800: #1f2937;
+  --gray-900: #111827;
+}
+
+
+body {
+  font-family: sans-serif; /* O la fuente que prefieras */
+  line-height: 1.5;
+  background-color: var(--gray-100); /* Fondo ligero */
+  color: var(--gray-900);
+  margin: 0;
+  padding: 0;
+}
+
+/* Estilos básicos para elementos comunes */
+h1, h2, h3, h4, h5, h6 {
+    margin-top: 0;
+    margin-bottom: 0.5em;
+    font-weight: bold;
+    color: var(--trace-dark-green);
+}
+
+h1 { font-size: 2.5em; }
+h2 { font-size: 2em; }
+h3 { font-size: 1.5em; }
+
+p {
+    margin-top: 0;
+    margin-bottom: 1em;
+}
+
+a {
+    color: var(--trace-dark-green);
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+button {
+   cursor: pointer;
+   border: none;
+   padding: 10px 20px;
+   border-radius: 5px;
+   font-size: 1em;
+   transition: background-color 0.2s ease;
+}
+
+ button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+ }
+
+
+input[type="text"], textarea {
+    padding: 10px;
+    border: 1px solid var(--gray-300);
+    border-radius: 5px;
+    width: 100%;
+    box-sizing: border-box; /* Incluye padding y border en el ancho */
+    margin-bottom: 10px; /* Espacio entre campos */
+}
+
+input[type="text"]:focus, textarea:focus {
+    outline: none;
+    border-color: var(--trace-medium-green);
+    box-shadow: 0 0 0 3px rgba(var(--trace-medium-green), 0.3); /* Simula el ring focus */
+}
+
+
+/* Estilos para contenedores y layout */
+.container {
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+
+.flex-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+ .flex-col-center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+ }
+
+
+/* Estilos específicos para componentes */
+
+/* Navigation */
+.navbar {
+  background-color: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.navbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem; /* Espacio entre logo y texto */
+}
+
+.navbar-logo {
+    /* Estilos para tu imagen de logo si es necesario */
+}
+
+.navbar-links {
+  display: flex;
+  gap: 1rem;
+  margin-left: 1.5rem; /* ml-6 Tailwind */
+}
+
+.navbar-link {
+  color: var(--gray-700);
+}
+
+.navbar-link:hover {
+   color: var(--trace-dark-green);
+   text-decoration: none;
+}
+
+.navbar-auth {
+   display: flex;
+   align-items: center;
+   gap: 0.5rem; /* Espacio entre texto y botón */
+}
+
+.navbar-auth span {
+   font-size: 0.875em; /* text-sm Tailwind */
+   color: var(--gray-600);
+}
+
+.navbar-auth strong {
+   color: var(--trace-dark-green);
+}
+
+
+.btn-primary {
+   background-color: var(--trace-dark-green);
+   color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+   background-color: var(--trace-light-green);
+}
+
+.btn-secondary {
+   border: 1px solid var(--trace-dark-green);
+   color: var(--trace-dark-green);
+   background-color: transparent;
+}
+
+ .btn-secondary:hover:not(:disabled) {
+   background-color: var(--trace-dark-green);
+   color: white;
+ }
+
+ .btn-outline-gray {
+    border: 1px solid var(--gray-400);
+    color: var(--gray-700);
+    background-color: transparent;
+ }
+
+ .btn-outline-gray:hover:not(:disabled) {
+     border-color: var(--trace-dark-green);
+     color: var(--trace-dark-green);
+ }
+
+
+ /* Card/Panel Style */
+ .panel {
+    background-color: white;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* shadow-md Tailwind */
+    border-radius: 8px; /* rounded-lg Tailwind */
+    padding: 1.5rem; /* p-6 Tailwind */
+ }
+
+ .panel-border-green {
+     border: 1px solid var(--trace-medium-green);
+ }
+
+
+ /* Form Layout */
+ .form-group {
+     margin-bottom: 1rem;
+ }
+
+ .form-group label {
+     display: block;
+     color: var(--gray-700);
+     font-weight: 600;
+     margin-bottom: 0.25rem;
+ }
+
+ .space-y-4 > *:not(:first-child) {
+     margin-top: 1rem; /* Simula space-y-4 */
+ }
+
+  .space-x-4 > *:not(:first-child) {
+     margin-left: 1rem; /* Simula space-x-4 */
+  }
+
+
+ /* Lot Details Specifics */
+ .lot-details-grid {
+     display: grid;
+     grid-template-columns: 1fr; /* Default: una columna */
+     gap: 1.5rem; /* gap-6 Tailwind */
+     margin-bottom: 1.5rem;
+ }
+
+ @media (min-width: 768px) { /* md: breakpoint */
+     .lot-details-grid {
+         grid-template-columns: repeat(2, 1fr); /* md:grid-cols-2 */
+     }
+      .md\:flex-row {
+          flex-direction: row !important; /* md:flex-row */
+      }
+      .md\:space-x-4 > *:not(:first-child) {
+         margin-left: 1rem !important; /* md:space-x-4 */
+         margin-top: 0 !important;
+      }
+
+      .md\:p-8 {
+         padding: 2rem !important; /* md:p-8 */
+      }
+ }
+
+  .event-item {
+     background-color: var(--gray-100);
+     padding: 1rem;
+     border-radius: 6px;
+     border: 1px solid var(--gray-200);
+  }
+
+  .event-item p {
+      margin-bottom: 0.5em; /* Reducir margen inferior en ítems de lista */
+  }
+  .event-item p:last-child {
+      margin-bottom: 0;
+  }
+
+  .ai-section {
+     margin-top: 1.5rem;
+     padding-top: 1.5rem;
+     border-top: 1px solid var(--gray-200);
+  }
+
+
+ /* Messages */
+ .message {
+     padding: 0.75rem; /* p-3 */
+     border-radius: 0.25rem; /* rounded-md */
+     text-align: center;
+     margin-top: 1rem; /* mt-4 */
+ }
+
+ .message.error {
+     background-color: rgba(254, 205, 211, 0.5); /* red-100 */
+     color: rgb(185, 28, 28); /* red-800 */
+ }
+
+ .message.success {
+     background-color: rgba(187, 247, 208, 0.5); /* green-100 */
+     color: rgb(22, 101, 52); /* green-800 */
+ }
+
+ .min-h-screen-adjusted {
+     min-height: calc(100vh - 80px); /* Ajusta 80px al alto de tu nav */
+ }
+
+  .min-h-screen-more-adjusted {
+     min-height: calc(100vh - 150px); /* Ajusta para otras páginas */
+  }

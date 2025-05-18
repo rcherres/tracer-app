@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "@near-wallet-selector/core": "^9.0.1",
+    "@near-wallet-selector/modal-ui": "^9.0.1",
+    "@near-wallet-selector/my-near-wallet": "^9.0.1",
+    "near-api-js": "^5.1.1"
+  }
+}

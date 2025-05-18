@@ -19,3 +19,5 @@ Thumbs.db
 # Ignorar dependencias bloqueadas (opcional)
 package-lock.json
 yarn.lock
+
+.next/
